@@ -1,6 +1,5 @@
 from datetime import datetime
-
-from flask import Flask, render_template
+from flask import Flask, render_template,request, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -23,31 +22,55 @@ def index():
 def about():
   return render_template('about.html', title='About')
 
-class User(db.Model):
-    __table_name__ = 'user'
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html', title='Login')
+    else :
+        name = request.form['username']
+        passw = request.form['password']
+        try:
+            data = User.query.filter_by(username=name, password=passw).first()
+            if data is not None:
+                session['logged_in'] = True
+                return render_template('index.html')
+            else :
+                return '로그인 실패'
+        except:
+            return '로그인 실패'
 
+@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register/', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        new_user = User(username = request.form['username'], password=request.form['password'], email=request.form['email'])
+        db.session.add(new_user)
+        db.session.commit()
+        return render_template('login.html')
+    return render_template('register.html', title='register')
+
+@app.route('/logout')
+def logout():
+    session['logged_in'] = False
+    return redirect(url_for('index'))
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
+
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
     profile_image = db.Column(db.String(100), default='default.png')
 
     posts = db.relationship('Post', backref='author', lazy=True)
-  
-    def __init__(self, username, email, password):
+
+    def __init__(self, username, password, email):
         self.username = username
+        self.password = password
         self.email = email
-
-        self.set_password(password)
-
-    def __repr__(self):
-        return f"<User('{self.username}', '{self.email}')>"
-
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password, password)
 
 class Post(db.Model):
     __table_name__ = 'post'
@@ -61,3 +84,6 @@ class Post(db.Model):
 
     def __repr__(self):
         return f"<Post('{self.id}', '{self.title}')>"
+
+if __name__ == '__main__':
+    app.run()

@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% if session['logged_in'] %}
+<p>이미 로그인을 했잖아요!!</p>
+{% else %}
+
+<div class="container">
+    <h1>로그인하는 페이지<h1>
+      <form action="/login" method="POST">
+        <input type="username" name="username" placeholder="Username"><br>
+        <input type="password" name="password" placeholder="Password"><br>
+        <input type="submit" value="Log in">
+      </form>
+</div>
+
+{% endif %}
+{% endblock %}
