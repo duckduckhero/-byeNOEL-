@@ -1,6 +1,20 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+
+<style>
+#question {
+  margin: 0 auto;
+}
+</style>
+
+<br>
+<form action="submit" method="POST">
+  <input type="text" name="question">
+  <input type="submit" value="submit">
+</form>
+<br>
+
 <div class="container">
   <div class="row">
     <div class="col-md-8">
@@ -10,7 +24,6 @@
         <div class="row">
           <div class="col">
             <a class="h1" href="#">{{ post.title }}</a>
-            <p class="text-justify">{{ post.content }}</p>
           </div>
           <div class="col-md-2 d-flex flex-column">
             <img class="rounded-circle mx-auto" src="{{ url_for('static', filename='profile_imgs/' + post.author.profile_image)}}" data-src="holder.js/64x64" width="64px" height="64px">
@@ -21,7 +34,7 @@
       </article>
       {% endfor %}
     </div>
-  
+
   </div>
 </div>
 {% endblock %}

@@ -58,6 +58,14 @@ def logout():
 def profile():
     return render_template('profile.html')
 
+@app.route('/submit', methods=['GET', 'POST'])
+def submit():
+    if request.method == 'POST':
+        new_post = Post(title=request.form['question'])
+        db.session.add(new_post)
+        db.session.commit()
+        return render_template('index.html')
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -76,8 +84,8 @@ class Post(db.Model):
     __table_name__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(120), unique=True, nullable=False)
-    content = db.Column(db.Text)
+    title = db.Column(db.String(300), unique=True, nullable=False)
+    #content = db.Column(db.Text)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow())
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
